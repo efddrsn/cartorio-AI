@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Cartório AI - Extrator de Documentos
 
 Uma aplicação web para extrair e estruturar dados de documentos PDF de cartório usando OCR e IA.
@@ -94,3 +95,7 @@ Se você encontrar erro de autenticação da OpenAI:
 1. Verifique se o arquivo `.env` existe na raiz do projeto
 2. Verifique se a chave API está correta no arquivo `.env`
 3. Certifique-se de que não há espaços ou caracteres extras na chave
+=======
+# cartorio-AI
+ PDF OCR para matriculas
+>>>>>>> 2c1db718cc5286dde3b18aaabf02d3c84280230a
