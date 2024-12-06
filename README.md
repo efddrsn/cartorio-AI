@@ -1,7 +1,38 @@
-<<<<<<< HEAD
 # Cartório AI - Extrator de Documentos
 
 Uma aplicação web para extrair e estruturar dados de documentos PDF de cartório usando OCR e IA.
+
+## Configuração das Variáveis de Ambiente
+
+A aplicação requer as seguintes variáveis de ambiente:
+
+1. **OpenAI API** (para extração de dados):
+   ```
+   OPENAI_API_KEY=sua-chave-api-aqui
+   ```
+
+2. **Cloudinary** (para armazenamento dos arquivos):
+   ```
+   CLOUDINARY_CLOUD_NAME=seu-cloud-name
+   CLOUDINARY_API_KEY=sua-api-key
+   CLOUDINARY_API_SECRET=seu-api-secret
+   ```
+
+   Para obter estas credenciais:
+   1. Crie uma conta em [cloudinary.com](https://cloudinary.com)
+   2. Acesse o Dashboard
+   3. Copie as credenciais da seção "Account Details"
+
+### No StackBlitz
+
+1. Abra o arquivo `.env` no editor
+2. Adicione todas as variáveis acima
+3. As variáveis serão automaticamente criptografadas e sincronizadas
+
+### Localmente
+
+1. Copie o arquivo `.env.example` para `.env`
+2. Preencha todas as variáveis com seus valores
 
 ## Requisitos
 
@@ -95,7 +126,3 @@ Se você encontrar erro de autenticação da OpenAI:
 1. Verifique se o arquivo `.env` existe na raiz do projeto
 2. Verifique se a chave API está correta no arquivo `.env`
 3. Certifique-se de que não há espaços ou caracteres extras na chave
-=======
-# cartorio-AI
- PDF OCR para matriculas
->>>>>>> 2c1db718cc5286dde3b18aaabf02d3c84280230a

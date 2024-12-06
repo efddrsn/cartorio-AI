@@ -67,9 +67,9 @@
                                     <button onclick="copyFullText()" class="text-blue-600 hover:text-blue-500 text-sm font-medium">
                                         Copiar
                                     </button>
-                                    <button onclick="downloadFile('ocr')" class="text-blue-600 hover:text-blue-500 text-sm font-medium">
+                                    <a href="#" id="ocr-download" target="_blank" class="text-blue-600 hover:text-blue-500 text-sm font-medium">
                                         Download
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                             <div class="bg-white p-4 rounded border max-h-60 overflow-y-auto">
@@ -81,9 +81,9 @@
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="font-medium text-gray-700">Dados Estruturados</h3>
-                                <button onclick="downloadFile('json')" class="text-blue-600 hover:text-blue-500 text-sm font-medium">
+                                <a href="#" id="json-download" target="_blank" class="text-blue-600 hover:text-blue-500 text-sm font-medium">
                                     Download
-                                </button>
+                                </a>
                             </div>
                             <div class="bg-white rounded border overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
@@ -164,56 +164,66 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.error || 'Error processing file');
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     processing.classList.add('hidden');
                     results.classList.remove('hidden');
                     
-                    currentFiles = {
-                        ocr: data.ocr_text_file,
-                        json: data.json_data_file
-                    };
-
+                    // Update download links
+                    document.getElementById('ocr-download').href = data.ocr_text_url || '#';
+                    document.getElementById('json-download').href = data.json_data_url || '#';
+                    
                     // Display extracted text
-                    document.getElementById('extracted-text').textContent = data.text;
+                    document.getElementById('extracted-text').textContent = data.text || '';
 
                     // Display structured data in table
                     const tableBody = document.getElementById('data-table');
                     tableBody.innerHTML = '';
                     
-                    Object.entries(data.extracted_data).forEach(([key, value]) => {
+                    if (data.extracted_data && typeof data.extracted_data === 'object') {
+                        Object.entries(data.extracted_data).forEach(([key, value]) => {
+                            const row = document.createElement('tr');
+                            const safeValue = (value || '').replace(/"/g, '&quot;');
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${key}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500 relative group">
+                                    <div class="flex items-center">
+                                        <span class="flex-grow">${value || ''}</span>
+                                        <button onclick="copyToClipboard('${safeValue}')" class="copy-button ml-2 text-blue-600 hover:text-blue-500">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        console.error('No extracted data or invalid format:', data);
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${key}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500 relative group">
-                                <div class="flex items-center">
-                                    <span class="flex-grow">${value || ''}</span>
-                                    <button onclick="copyToClipboard('${value || ''}')" class="copy-button ml-2 text-blue-600 hover:text-blue-500">
-                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-                                        </svg>
-                                    </button>
-                                </div>
+                            <td colspan="2" class="px-6 py-4 text-center text-sm text-red-500">
+                                No data extracted or invalid format
                             </td>
                         `;
                         tableBody.appendChild(row);
-                    });
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Erro ao processar o arquivo. Por favor, tente novamente.');
-                })
-                .finally(() => {
                     processing.classList.add('hidden');
+                    alert(error.message || 'Error processing file. Please try again.');
                 });
             } else {
-                alert('Por favor, selecione um arquivo PDF válido.');
-            }
-        }
-
-        function downloadFile(type) {
-            if (currentFiles[type]) {
-                window.location.href = `/download/${currentFiles[type]}`;
+                alert('Please select a valid PDF file.');
             }
         }
 
